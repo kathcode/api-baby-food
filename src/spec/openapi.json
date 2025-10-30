@@ -1,0 +1,273 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Baby Food Log API",
+    "version": "1.0.0",
+    "description": "Node.js + Express + MongoDB API for entries and recipes"
+  },
+  "servers": [
+    { "url": "http://localhost:4000", "description": "Local" }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "object", "properties": { "ok": { "type": "boolean" } } } } } }
+        }
+      }
+    },
+    "/api/entries": {
+      "get": {
+        "summary": "List entries",
+        "parameters": [
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 20 } },
+          { "name": "offset", "in": "query", "schema": { "type": "integer", "minimum": 0, "default": 0 } },
+          { "name": "sort", "in": "query", "schema": { "$ref": "#/components/schemas/SortKey" }, "description": "newest|oldest|rating_desc|rating_asc" },
+          { "name": "dateFrom", "in": "query", "schema": { "type": "string", "format": "date-time" } },
+          { "name": "dateTo", "in": "query", "schema": { "type": "string", "format": "date-time" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Entries",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PaginatedEntries" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create entry",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/EntryCreate" } } }
+        },
+        "responses": {
+          "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Entry" } } } },
+          "400": { "description": "Validation error" }
+        }
+      }
+    },
+    "/api/entries/{id}": {
+      "get": {
+        "summary": "Get entry",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Entry", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Entry" } } } },
+          "404": { "description": "Not found" }
+        }
+      },
+      "put": {
+        "summary": "Update entry",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/EntryUpdate" } } } },
+        "responses": {
+          "200": { "description": "Updated", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Entry" } } } },
+          "404": { "description": "Not found" }
+        }
+      },
+      "delete": {
+        "summary": "Delete entry",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Deleted", "content": { "application/json": { "schema": { "type": "object", "properties": { "ok": { "type": "boolean" } } } } } },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/api/recipes": {
+      "get": {
+        "summary": "List recipes",
+        "parameters": [
+          { "name": "q", "in": "query", "schema": { "type": "string" } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 50 } },
+          { "name": "offset", "in": "query", "schema": { "type": "integer", "minimum": 0, "default": 0 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recipes",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PaginatedRecipes" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create recipe",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RecipeCreate" } } } },
+        "responses": {
+          "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Recipe" } } } },
+          "400": { "description": "Validation error" }
+        }
+      }
+    },
+    "/api/recipes/{id}": {
+      "get": {
+        "summary": "Get recipe",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Recipe", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Recipe" } } } },
+          "404": { "description": "Not found" }
+        }
+      },
+      "put": {
+        "summary": "Update recipe",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RecipeUpdate" } } } },
+        "responses": {
+          "200": { "description": "Updated", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Recipe" } } } },
+          "404": { "description": "Not found" }
+        }
+      },
+      "delete": {
+        "summary": "Delete recipe",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Deleted", "content": { "application/json": { "schema": { "type": "object", "properties": { "ok": { "type": "boolean" } } } } } },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/api/recipes/{id}/use": {
+      "post": {
+        "summary": "Create entry from a recipe",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NewEntryFromRecipe" } } }
+        },
+        "responses": {
+          "201": { "description": "Entry created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Entry" } } } },
+          "404": { "description": "Recipe not found" },
+          "400": { "description": "Validation error" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SortKey": {
+        "type": "string",
+        "enum": ["newest","oldest","rating_desc","rating_asc"]
+      },
+      "FoodType": {
+        "type": "string",
+        "enum": ["Fruit","Carbohydrates","Protein","Vegetables"]
+      },
+      "AmountUnit": {
+        "type": "string",
+        "enum": ["ml","g","tbsp","unit"]
+      },
+      "MealType": {
+        "type": "string",
+        "enum": ["Breakfast","Lunch","Dinner","Snack"]
+      },
+      "FoodItem": {
+        "type": "object",
+        "required": ["name","type"],
+        "properties": {
+          "name": { "type": "string", "example": "Banana" },
+          "type": { "$ref": "#/components/schemas/FoodType" },
+          "amount": { "type": "number", "minimum": 0, "example": 60 },
+          "amountUnit": { "$ref": "#/components/schemas/AmountUnit" }
+        }
+      },
+      "Entry": {
+        "type": "object",
+        "required": ["date","items","typeOfMeal","rating"],
+        "properties": {
+          "_id": { "type": "string" },
+          "date": { "type": "string", "format": "date-time" },
+          "items": { "type": "array", "items": { "$ref": "#/components/schemas/FoodItem" } },
+          "typeOfMeal": { "$ref": "#/components/schemas/MealType" },
+          "amount": { "type": "number", "minimum": 0 },
+          "amountUnit": { "$ref": "#/components/schemas/AmountUnit" },
+          "reaction": { "type": "string" },
+          "rating": { "type": "integer", "minimum": 1, "maximum": 5 }
+        }
+      },
+      "EntryCreate": {
+        "allOf": [
+          { "$ref": "#/components/schemas/Entry" },
+          {
+            "type": "object",
+            "properties": { "_id": { "readOnly": true } }
+          }
+        ]
+      },
+      "EntryUpdate": {
+        "type": "object",
+        "properties": {
+          "date": { "type": "string", "format": "date-time" },
+          "items": { "type": "array", "items": { "$ref": "#/components/schemas/FoodItem" } },
+          "typeOfMeal": { "$ref": "#/components/schemas/MealType" },
+          "amount": { "type": "number", "minimum": 0 },
+          "amountUnit": { "$ref": "#/components/schemas/AmountUnit" },
+          "reaction": { "type": "string" },
+          "rating": { "type": "integer", "minimum": 1, "maximum": 5 }
+        }
+      },
+      "Recipe": {
+        "type": "object",
+        "required": ["name","items"],
+        "properties": {
+          "_id": { "type": "string" },
+          "name": { "type": "string", "example": "Banana & Yogurt Mix" },
+          "description": { "type": "string", "example": "Creamy and sweet snack." },
+          "items": { "type": "array", "items": { "$ref": "#/components/schemas/FoodItem" } }
+        }
+      },
+      "RecipeCreate": {
+        "allOf": [
+          { "$ref": "#/components/schemas/Recipe" },
+          {
+            "type": "object",
+            "properties": { "_id": { "readOnly": true } }
+          }
+        ]
+      },
+      "RecipeUpdate": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "items": { "type": "array", "items": { "$ref": "#/components/schemas/FoodItem" } }
+        }
+      },
+      "NewEntryFromRecipe": {
+        "type": "object",
+        "required": ["date","typeOfMeal","rating"],
+        "properties": {
+          "date": { "type": "string", "format": "date-time" },
+          "typeOfMeal": { "$ref": "#/components/schemas/MealType" },
+          "rating": { "type": "integer", "minimum": 1, "maximum": 5 },
+          "reaction": { "type": "string" },
+          "amount": { "type": "number", "minimum": 0 },
+          "amountUnit": { "$ref": "#/components/schemas/AmountUnit" }
+        }
+      },
+      "PaginatedEntries": {
+        "type": "object",
+        "properties": {
+          "items": { "type": "array", "items": { "$ref": "#/components/schemas/Entry" } },
+          "total": { "type": "integer" },
+          "limit": { "type": "integer" },
+          "offset": { "type": "integer" }
+        }
+      },
+      "PaginatedRecipes": {
+        "type": "object",
+        "properties": {
+          "items": { "type": "array", "items": { "$ref": "#/components/schemas/Recipe" } },
+          "total": { "type": "integer" },
+          "limit": { "type": "integer" },
+          "offset": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

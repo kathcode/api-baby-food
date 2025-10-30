@@ -1,0 +1,62 @@
+# ------------------------------------
+# Node / Express
+# ------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime + logs
+logs/
+*.log
+*.log.*
+pids/
+*.pid
+*.seed
+*.pid.lock
+nodemon-debug.log
+
+# Coverage / testing
+coverage/
+.nyc_output/
+.tap/
+
+# Env & secrets (commit example files like .env.example instead)
+.env
+.env.local
+.env.*.local
+
+# Build / output
+dist/
+build/
+tmp/
+temp/
+.cache/
+.cache-loader/
+
+# TypeScript (remove if not using TS)
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Linters / tooling caches
+.eslintcache
+.stylelintcache
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editors / IDE
+.vscode/
+.idea/
+.history/
+
+# Package managers (keep lockfiles!)
+# package-lock.json / yarn.lock / pnpm-lock.yaml should be committed
+# so we do NOT ignore them.
+
+# Misc (uncomment if you generate local uploads)
+# uploads/
+# storage/

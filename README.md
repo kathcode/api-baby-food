@@ -1,1 +1,6 @@
-# api-baby-food
+# SnugBites baby API Application
+
+## Technology
+
+- npm
+- express
