@@ -2,14 +2,12 @@ import express from "express";
 import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
-import pinoHttp from "pino-http";
 import { env } from "./config/env.js";
 import { connectMongo } from "./db/mongo.js";
 import { errorHandler } from "./middleware/error.js";
 import { notFound } from "./middleware/notFound.js";
 import entriesRouter from "./routes/entries.js";
 import recipesRouter from "./routes/recipes.js";
-import { logger } from "../src/logger.js";
 import swaggerUi from "swagger-ui-express";
 import openapi from "./spec/openapi.json" with { type: "json" };
 import mongoose from "mongoose";
@@ -27,7 +25,6 @@ export async function createServer() {
     });
   });
 
-  app.use(pinoHttp({ logger }));
   app.use(helmet());
   app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
   app.use(express.json({ limit: "1mb" }));
