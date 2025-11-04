@@ -8,6 +8,7 @@ import {
   RecipeUpdateSchema,
   RecipeQuerySchema,
 } from "../schemas/recipe.js";
+import { getAuth } from "@clerk/express";
 
 const NewEntryFromRecipeSchema = z
   .object({
@@ -26,6 +27,7 @@ const NewEntryFromRecipeSchema = z
 const router = Router();
 
 router.get("/", async (req, res) => {
+  const { userId } = getAuth(req);
   const parsed = RecipeQuerySchema.safeParse(req.query);
   if (!parsed.success) {
     return res
@@ -34,7 +36,7 @@ router.get("/", async (req, res) => {
   }
 
   const { q, limit, offset } = parsed.data;
-  const filter: any = {};
+  const filter: any = { userId };
   if (q) filter.$text = { $search: q };
 
   const [items, total] = await Promise.all([

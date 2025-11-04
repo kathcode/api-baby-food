@@ -11,6 +11,9 @@ import recipesRouter from "./routes/recipes.js";
 import swaggerUi from "swagger-ui-express";
 import openapi from "./spec/openapi.json" with { type: "json" };
 import mongoose from "mongoose";
+import { clerkClient, requireAuth, getAuth } from '@clerk/express'
+
+
 
 export async function createServer() {
   await connectMongo();
@@ -33,14 +36,13 @@ export async function createServer() {
 
   app.get("/health", (_req, res) => res.json({ ok: true }));
 
-  app.use("/api/entries", entriesRouter);
-  app.use("/api/recipes", recipesRouter);
-
+  // Private routes
+  app.use("/api/entries", requireAuth(), entriesRouter);
+  app.use("/api/recipes", requireAuth(), recipesRouter);
+  app.use("/docs", requireAuth(), swaggerUi.serve, swaggerUi.setup(openapi));
+  app.get("/openapi.json", requireAuth(), (_req, res) => res.json(openapi));
   app.use(notFound);
   app.use(errorHandler);
-
-  app.use("/docs", swaggerUi.serve, swaggerUi.setup(openapi));
-  app.get("/openapi.json", (_req, res) => res.json(openapi));
 
   return app;
 }

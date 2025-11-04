@@ -16,6 +16,7 @@ const FoodItemSchema = new Schema(
 
 const RecipeSchema = new Schema(
   {
+    userId: { type: String, required: true, index: true },
     name: { type: String, required: true, trim: true, index: "text" },
     description: { type: String },
     items: { type: [FoodItemSchema], required: true },

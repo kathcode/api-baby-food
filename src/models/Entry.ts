@@ -16,6 +16,7 @@ const FoodItemSchema = new Schema(
 
 const EntrySchema = new Schema(
   {
+    userId: { type: String, required: true, index: true },
     date: { type: Date, required: true, index: true },
     items: { type: [FoodItemSchema], required: true },
     typeOfMeal: {

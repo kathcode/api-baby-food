@@ -6,11 +6,14 @@ import {
   EntryUpdateSchema,
   EntryQuerySchema,
 } from "../schemas/entry.js";
+import { getAuth } from "@clerk/express";
 
 const router = Router();
 
 router.get("/", async (req, res) => {
   const parsed = EntryQuerySchema.safeParse(req.query);
+  const { userId } = getAuth(req);
+  console.log(userId);
   if (!parsed.success) {
     return res
       .status(400)
@@ -18,7 +21,7 @@ router.get("/", async (req, res) => {
   }
   const { limit, offset, sort, dateFrom, dateTo } = parsed.data;
 
-  const filter: any = {};
+  const filter: any = { userId };
   if (dateFrom || dateTo) filter.date = {};
   if (dateFrom) filter.date.$gte = dateFrom;
   if (dateTo) filter.date.$lte = dateTo;
@@ -43,7 +46,9 @@ router.get("/:id", async (req, res) => {
 });
 
 router.post("/", validateBody(EntryCreateSchema), async (req, res) => {
-  const created = await Entry.create(req.body);
+  const payload = req.body;
+  const userId = req.auth?.userId!;
+  const created = await Entry.create({ ...payload, userId });
   res.status(201).json(created);
 });
 
