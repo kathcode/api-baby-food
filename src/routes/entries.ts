@@ -47,7 +47,7 @@ router.get("/:id", async (req, res) => {
 
 router.post("/", validateBody(EntryCreateSchema), async (req, res) => {
   const payload = req.body;
-  const userId = req.auth?.userId!;
+  const { userId } = getAuth(req);
   const created = await Entry.create({ ...payload, userId });
   res.status(201).json(created);
 });
