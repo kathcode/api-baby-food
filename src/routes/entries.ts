@@ -40,7 +40,9 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
-  const item = await Entry.findById(req.params.id).lean();
+  const { userId } = getAuth(req);
+  const filter: any = { id: req.params.id, userId };
+  const item = await Entry.findById(filter).lean();
   if (!item) return res.status(404).json({ error: "NotFound" });
   res.json(item);
 });
@@ -53,7 +55,9 @@ router.post("/", validateBody(EntryCreateSchema), async (req, res) => {
 });
 
 router.put("/:id", validateBody(EntryUpdateSchema), async (req, res) => {
-  const updated = await Entry.findByIdAndUpdate(req.params.id, req.body, {
+  const { userId } = getAuth(req);
+  const filter: any = { id: req.params.id, userId };
+  const updated = await Entry.findByIdAndUpdate(filter, req.body, {
     new: true,
   }).lean();
   if (!updated) return res.status(404).json({ error: "NotFound" });
@@ -61,7 +65,9 @@ router.put("/:id", validateBody(EntryUpdateSchema), async (req, res) => {
 });
 
 router.delete("/:id", async (req, res) => {
-  const deleted = await Entry.findByIdAndDelete(req.params.id).lean();
+  const { userId } = getAuth(req);
+  const filter: any = { id: req.params.id, userId };
+  const deleted = await Entry.findByIdAndDelete(filter).lean();
   if (!deleted) return res.status(404).json({ error: "NotFound" });
   res.json({ ok: true });
 });

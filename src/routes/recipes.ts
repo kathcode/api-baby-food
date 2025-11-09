@@ -52,18 +52,24 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
-  const recipe = await Recipe.findById(req.params.id).lean();
+  const { userId } = getAuth(req);
+  const filter: any = { id: req.params.id, userId };
+  const recipe = await Recipe.findById(filter).lean();
   if (!recipe) return res.status(404).json({ error: "NotFound" });
   res.json(recipe);
 });
 
 router.post("/", validateBody(RecipeCreateSchema), async (req, res) => {
-  const created = await Recipe.create(req.body);
+  const payload = req.body;
+  const { userId } = getAuth(req);
+  const created = await Recipe.create({ payload, userId });
   res.status(201).json(created);
 });
 
 router.put("/:id", validateBody(RecipeUpdateSchema), async (req, res) => {
-  const updated = await Recipe.findByIdAndUpdate(req.params.id, req.body, {
+  const { userId } = getAuth(req);
+  const filter: any = { id: req.params.id, userId };
+  const updated = await Recipe.findByIdAndUpdate(filter, req.body, {
     new: true,
   }).lean();
   if (!updated) return res.status(404).json({ error: "NotFound" });
@@ -71,14 +77,18 @@ router.put("/:id", validateBody(RecipeUpdateSchema), async (req, res) => {
 });
 
 router.delete("/:id", async (req, res) => {
-  const deleted = await Recipe.findByIdAndDelete(req.params.id).lean();
+  const { userId } = getAuth(req);
+  const filter: any = { id: req.params.id, userId };
+  const deleted = await Recipe.findByIdAndDelete(filter).lean();
   if (!deleted) return res.status(404).json({ error: "NotFound" });
   res.json({ ok: true });
 });
 
 // Create entry from a recipe
 router.post("/:id/use", async (req, res) => {
-  const recipe = await Recipe.findById(req.params.id).lean();
+  const { userId } = getAuth(req);
+  const filter: any = { id: req.params.id, userId };
+  const recipe = await Recipe.findById(filter).lean();
   if (!recipe) return res.status(404).json({ error: "RecipeNotFound" });
 
   const parsed = NewEntryFromRecipeSchema.safeParse(req.body);
@@ -96,6 +106,7 @@ router.post("/:id/use", async (req, res) => {
     amountUnit: parsed.data.amountUnit,
     reaction: parsed.data.reaction,
     rating: parsed.data.rating,
+    userId,
   });
 
   res.status(201).json(entry);
