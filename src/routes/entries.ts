@@ -13,7 +13,7 @@ const router = Router();
 router.get("/", async (req, res) => {
   const parsed = EntryQuerySchema.safeParse(req.query);
   const { userId } = getAuth(req);
-  console.log(userId);
+
   if (!parsed.success) {
     return res
       .status(400)

@@ -12,12 +12,14 @@ import swaggerUi from "swagger-ui-express";
 import openapi from "./spec/openapi.json" with { type: "json" };
 import mongoose from "mongoose";
 import { clerkClient, requireAuth, getAuth } from '@clerk/express'
-
+import { clerkMiddleware } from '@clerk/express'
 
 
 export async function createServer() {
   await connectMongo();
   const app = express();
+
+  app.use(clerkMiddleware())
   
   app.get("/debug/db", (_req, res) => {
     const conn = mongoose.connection;
