@@ -31,7 +31,7 @@ export async function createServer() {
   });
 
   app.use(helmet());
-  app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
+  app.use(cors({ origin: [env.CORS_ORIGIN, env.CORS_ORIGIN_DEV], credentials: true }));
   app.use(express.json({ limit: "1mb" }));
 
   app.use(rateLimit({ windowMs: 60_000, max: 120 })); // 120 req/min per IP
