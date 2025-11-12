@@ -19,8 +19,36 @@ export async function createServer() {
   await connectMongo();
   const app = express();
 
-  app.use(clerkMiddleware())
+  const WEB_ORIGINS = [
+    "https://snugbitesbaby.onrender.com", // UI origin
+    "http://localhost:3000", // Local origins
+  ];
+
+  const corsOptions: cors.CorsOptions = {
+    origin: WEB_ORIGINS,
+    credentials: true, // ok even if you don't use cookies
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  };
   
+  // CORS
+  app.use(cors(corsOptions));
+  app.options("*", cors(corsOptions));
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: false, // don't block cross-origin JSON
+    })
+  );
+  
+  // CONFIG
+  app.use(express.json({ limit: "1mb" }));
+  app.use(rateLimit({ windowMs: 60_000, max: 120 })); // 120 req/min per IP
+
+  // CLERK AUTH
+  app.use(clerkMiddleware())
+
+  // Public routes
+  app.get("/health", (_req, res) => res.json({ ok: true }));
   app.get("/debug/db", (_req, res) => {
     const conn = mongoose.connection;
     res.json({
@@ -29,14 +57,6 @@ export async function createServer() {
       readyState: conn.readyState, // 1 = connected
     });
   });
-
-  app.use(helmet());
-  app.use(cors({ origin: [env.CORS_ORIGIN, env.CORS_ORIGIN_DEV], credentials: true }));
-  app.use(express.json({ limit: "1mb" }));
-
-  app.use(rateLimit({ windowMs: 60_000, max: 120 })); // 120 req/min per IP
-
-  app.get("/health", (_req, res) => res.json({ ok: true }));
 
   // Private routes
   app.use("/api/entries", requireAuth(), entriesRouter);
