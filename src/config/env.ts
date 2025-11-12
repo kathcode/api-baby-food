@@ -6,6 +6,6 @@ export const env = {
   MONGO_URI:
     process.env.MONGO_URI ??
     "mongodb+srv://kath:NBz1FvleLaBGSt8o@clusterkath.ovwkv.mongodb.net/?retryWrites=true&w=majority&appName=Clusterkath",
-  CORS_ORIGIN: process.env.CORS_ORIGIN ?? "*",
+  CORS_ORIGIN: process.env.CORS_ORIGIN_LOCAL ?? "*",
   CORS_ORIGIN_DEV: process.env.CORS_ORIGIN_DEV ?? "",
 } as const;
