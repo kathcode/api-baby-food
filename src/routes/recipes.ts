@@ -62,7 +62,7 @@ router.get("/:id", async (req, res) => {
 router.post("/", validateBody(RecipeCreateSchema), async (req, res) => {
   const payload = req.body;
   const { userId } = getAuth(req);
-  const created = await Recipe.create({ payload, userId });
+  const created = await Recipe.create({ ...payload, userId });
   res.status(201).json(created);
 });
 

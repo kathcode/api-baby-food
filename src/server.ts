@@ -2,7 +2,6 @@ import express from "express";
 import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
-import { env } from "./config/env.js";
 import { connectMongo } from "./db/mongo.js";
 import { errorHandler } from "./middleware/error.js";
 import { notFound } from "./middleware/notFound.js";
@@ -11,9 +10,8 @@ import recipesRouter from "./routes/recipes.js";
 import swaggerUi from "swagger-ui-express";
 import openapi from "./spec/openapi.json" with { type: "json" };
 import mongoose from "mongoose";
-import { clerkClient, requireAuth, getAuth } from '@clerk/express'
+import { requireAuth } from '@clerk/express'
 import { clerkMiddleware } from '@clerk/express'
-
 
 export async function createServer() {
   await connectMongo();
