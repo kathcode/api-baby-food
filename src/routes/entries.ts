@@ -56,10 +56,12 @@ router.post("/", validateBody(EntryCreateSchema), async (req, res) => {
 
 router.put("/:id", validateBody(EntryUpdateSchema), async (req, res) => {
   const { userId } = getAuth(req);
-  const filter: any = { id: req.params.id, userId };
-  const updated = await Entry.findByIdAndUpdate(filter, req.body, {
-    new: true,
-  }).lean();
+
+  const updated = await Entry.findByIdAndUpdate(
+    { _id: req.params.id, userId }, // ownership gate
+    { $set: req.body },
+    { new: true, runValidators: true }
+  ).lean();
   if (!updated) return res.status(404).json({ error: "NotFound" });
   res.json(updated);
 });
